@@ -1,4 +1,7 @@
 const sign_up_schema = require("../Model/signup");
+const jwt = require('jsonwebtoken')
+const secretkey="secretkey" 
+const bcrypt = require("bcrypt")
    
 const usersvalidation = require("../validation/login");
 
@@ -27,13 +30,28 @@ const log_in_controller = async (req, resp) => {
     return resp.send("no user found ");
   }
 
-  if (req.body.Password !== user.Password) {
-    return resp.send("incorrect password");
-  }
-  if (req.body.Email === user.Email && req.body.Password === user.Password) {
 
-    resp.json({message:"sucess",data:user})
+
+  const isEqual = await bcrypt.compare(req.body.Password, user.Password);
+
+
+  if (!isEqual) {
+    return  resp.send ({success: false, data: null, message: 'Password is incorrect!' })
+  }
+
+  if(isEqual && req.body.Email === user.Email ){
+    const token = jwt.sign({id:user._id},secretkey,{expiresIn:"2h"}) 
+     resp.json({userdetail:user,tokenuigiugitygtyigtyi:token})    
+     console.log(token,"okkkkkk")  
+ }
+   
+
+  // if (req.body.Password !== user.Password) {
+  //   return resp.send("incorrect password");
+  // }
+  // if (req.body.Email === user.Email && req.body.Password === user.Password) {
+
+  //   resp.json({message:"sucess",data:user})
 
   }
-};
-module.exports=log_in_controller;
+module.exports=log_in_controller
